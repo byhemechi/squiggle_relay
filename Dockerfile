@@ -25,11 +25,14 @@ ENV MIX_ENV="prod"
 # install mix dependencies
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
-COPY config/config.exs config/${MIX_ENV}.exs config/
+COPY config/config.exs config/
 RUN mix deps.compile
 
 COPY lib lib
 COPY priv priv
+
+RUN mix esbuild client --minify
+RUN mix esbuild library --minify
 
 # Compile the release
 RUN mix release
