@@ -30,6 +30,7 @@ RUN mix deps.compile
 
 COPY lib lib
 COPY priv priv
+COPY assets assets
 
 RUN mix esbuild client --minify
 RUN mix esbuild library --minify
