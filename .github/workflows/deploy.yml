@@ -64,7 +64,7 @@ jobs:
         uses: mikefarah/yq@master
         with:
           cmd: |
-            yq -i '(.images[] | select(.name == "squiggle_relay")) |= (
+            yq -i '(.images[] | select(.name == "squiggle-relay")) |= (
               .digest = "${{ steps.docker_build.outputs.digest }}" |
               .newName = "${{ env.IMAGE }}" |
               .newTag = "${{ steps.prep.outputs.BUILD_ID }}"
