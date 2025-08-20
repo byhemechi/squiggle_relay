@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "squiggle_realtime": ["./lib/squiggle_realtime.ts"]
+    },
+    "module": "ES2022",
+    "target": "ES2022"
+  }
+}

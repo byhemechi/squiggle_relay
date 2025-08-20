@@ -8,9 +8,9 @@ defmodule SquiggleRelay.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Supervisor.child_spec({SquiggleRelay.Realtime, channel: "events"},
-        id: {SquiggleRelay.Realtime, "events"}
-      ),
+      # Supervisor.child_spec({SquiggleRelay.Realtime, channel: "events"},
+      #   id: {SquiggleRelay.Realtime, "events"}
+      # ),
       Supervisor.child_spec({SquiggleRelay.Realtime, channel: "test"},
         id: {SquiggleRelay.Realtime, "test"}
       ),

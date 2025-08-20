@@ -9,39 +9,50 @@ defmodule SquiggleRelay.Router do
     send_resp(conn, 404, "not found")
   end
 
-  get "/" do
+  get "/client.js" do
     live_channels =
       for {{SquiggleRelay.Realtime, channel}, _pid, :worker, [SquiggleRelay.Realtime | _]} <-
             Supervisor.which_children(SquiggleRelay.Supervisor) do
         channel
       end
 
-    send_resp(conn, 200, """
-    // JavaScript example code.
-    const allowedChannels = new Set(#{JSON.encode_to_iodata!(live_channels)})
+    conn
+    |> put_resp_content_type("application/javascript")
+    |> send_resp(200, [
+      "export const activeChannels = new Set(",
+      JSON.encode_to_iodata!(live_channels),
+      ");\n\n",
+      "const SquiggleChannel = {",
+      for channel <- live_channels do
+        [
+          "\n  get ",
+          channel
+          |> String.replace(~r/[^a-z]+/, "_")
+          |> Macro.camelize(),
+          """
+          () {
+              return import(\"/lib/squiggle_realtime.js\")
+                .then(
+                  ({ default: SquiggleRealtime }) =>
+                    new SquiggleRealtime(\
+          """,
+          JSON.encode_to_iodata!(channel),
+          """
+          )
+                )
+            },\
+          """
+        ]
+      end,
+      "\n}\n\nexport default SquiggleChannel;"
+    ])
+  end
 
-    const channel = "test" // Returns random data for testing, change this to receive actual data
+  get "/" do
+    priv_dir = :code.priv_dir(:squiggle_relay)
+    index_path = Path.join([priv_dir, "static", "index.html"])
 
-    if(!allowedChannels.has(channel)) throw new Error("Invalid WebSocket Channel ID")
-
-    const sock = new WebSocket(`/websocket/${encodeURI(channel)}`);
-    sock.addEventListener("message", ({ data }) => {
-      switch(data) {
-        case "pong":
-          break;
-
-        case "ping":
-          sock.send("pong")
-          break;
-
-        default:
-          console.log("Received message from WebSocket:", JSON.parse(data));
-      }
-    })
-
-    // The socket will time out if no data is received for 60 seconds, send a message every 30 seconds to avoid this
-    setInterval(() => sock.send("ping"), 30000)
-    """)
+    send_file(conn, 200, index_path)
   end
 
   get "/healthz" do
@@ -71,7 +82,5 @@ defmodule SquiggleRelay.Router do
     end
   end
 
-  match _ do
-    send_not_found(conn)
-  end
+  match(_, to: SquiggleRelay.Static)
 end
