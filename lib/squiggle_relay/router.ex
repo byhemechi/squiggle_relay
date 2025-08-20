@@ -20,7 +20,7 @@ defmodule SquiggleRelay.Router do
     |> put_resp_content_type("application/javascript")
     |> send_resp(200, [
       "export const activeChannels = new Set(",
-      # JSON.encode_to_iodata!(live_channels),
+      JSON.encode_to_iodata!(Enum.map(live_channels, &elem(&1, 0))),
       ");\n\n",
       "const SquiggleChannel = {",
       for {channel, pid} <- live_channels do
@@ -38,7 +38,7 @@ defmodule SquiggleRelay.Router do
             do: [
               "    console.warn(\"The `",
               channel,
-              "` realtime socket is currently reconnecting. Messages may be missed (retries: ",
+              "` realtime socket is currently reconnecting. Messages might be missed (retries: ",
               Integer.to_string(state.retry_count),
               ")\");\n"
             ],

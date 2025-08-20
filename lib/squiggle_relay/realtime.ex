@@ -9,6 +9,7 @@ defmodule SquiggleRelay.Realtime do
   defstruct [
     :pid,
     :channel,
+    :worker,
     retry_count: 0,
     retry_delay: @initial_retry_delay
   ]
@@ -24,42 +25,52 @@ defmodule SquiggleRelay.Realtime do
   end
 
   defp start_stream(%__MODULE{channel: channel} = state) do
-    Task.start_link(fn ->
-      Req.get("https://api.squiggle.com.au/sse/#{channel}",
-        into: fn {:data, data}, {req, res} ->
-          # Reset the connection timer since we received data
-          pid = Req.Request.get_private(req, :pid) || state.pid
-          old_timer = Req.Request.get_private(req, :timer)
-          if old_timer, do: Process.cancel_timer(old_timer)
+    case state do
+      %__MODULE__{worker: pid} when is_pid(pid) ->
+        Logger.info("Killing old socket process")
+        Process.exit(pid, :normal)
 
-          new_timer = Process.send_after(pid, :check_connection, @timeout)
+      _ ->
+        nil
+    end
 
-          buffer = Req.Request.get_private(req, :sse_buffer, "")
-          {events, new_buffer} = ServerSentEvents.parse(buffer <> data)
+    {:ok, pid} =
+      Task.start_link(fn ->
+        Req.get("https://api.squiggle.com.au/sse/#{channel}",
+          into: fn {:data, data}, {req, res} ->
+            # Reset the connection timer since we received data
+            pid = Req.Request.get_private(req, :pid) || state.pid
+            old_timer = Req.Request.get_private(req, :timer)
+            if old_timer, do: Process.cancel_timer(old_timer)
 
-          req =
-            req
-            |> Req.Request.put_private(:timer, new_timer)
-            |> Req.Request.put_private(:pid, pid)
-            |> Req.Request.put_private(:sse_buffer, new_buffer)
+            new_timer = Process.send_after(pid, :check_connection, @timeout)
 
-          if events != [] do
-            for event <- events do
-              send(pid, {:squiggle_event, event})
+            buffer = Req.Request.get_private(req, :sse_buffer, "")
+            {events, new_buffer} = ServerSentEvents.parse(buffer <> data)
+
+            req =
+              req
+              |> Req.Request.put_private(:timer, new_timer)
+              |> Req.Request.put_private(:pid, pid)
+              |> Req.Request.put_private(:sse_buffer, new_buffer)
+
+            if events != [] do
+              for event <- events do
+                send(pid, {:squiggle_event, event})
+              end
             end
-          end
 
-          {:cont, {req, res}}
-        end,
-        headers: %{
-          "user-agent" => "George's Squiggle API relay - byhemechi on twitter or discord"
-        }
-      )
-    end)
+            {:cont, {req, res}}
+          end,
+          headers: %{
+            "user-agent" => "George's Squiggle API relay - byhemechi on twitter or discord"
+          }
+        )
+      end)
 
     Logger.info("Connected to squiggle #{channel}")
 
-    %{state | channel: channel}
+    %{state | channel: channel, worker: pid}
   end
 
   def handle_info(:check_connection, state) do

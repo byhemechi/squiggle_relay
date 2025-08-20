@@ -9,8 +9,10 @@ let didAppendContainer = false;
 
 const encoder = new TextEncoder();
 
-function start() {
-  const socket = new SquiggleRealtime("test");
+let socket: SquiggleRealtime;
+
+function start(channel: string) {
+  socket = new SquiggleRealtime(channel);
 
   socket.addEventListener("close", () => {
     const pingEl = document.createElement("div");
@@ -36,6 +38,7 @@ function start() {
     messageElement.setAttribute("data-type", e.detail.event);
     messageElement.id = e.detail.id;
     messageElement.className = "message";
+
     if (e.detail.event == "message" && typeof e.detail.data === "string") {
       const bodyElement = document.createElement("p");
       bodyElement.textContent = e.detail.data;
@@ -108,8 +111,41 @@ function start() {
   });
 }
 
-if (window.requestIdleCallback) {
-  requestIdleCallback(() => start());
-} else {
-  requestAnimationFrame(() => start());
-}
+const buttonContainer =
+  template.content.querySelector<HTMLDivElement>("#channel_selector");
+
+const codeChannel = document.querySelector<HTMLSpanElement>(
+  "#current_channel_snippet",
+);
+
+import("squiggle_realtime/client_data").then(({ activeChannels }) => {
+  let channelButtons = new Map<string, HTMLButtonElement>();
+
+  for (const channel of activeChannels) {
+    const button = document.createElement("button");
+    button.textContent = channel;
+    channelButtons.set(channel, button);
+
+    button.addEventListener("click", () => {
+      socket.disconnect();
+      setActiveChannel(channel);
+    });
+
+    buttonContainer.appendChild(button);
+  }
+  const [defaultChannel] = activeChannels;
+
+  function setActiveChannel(channel: string) {
+    for (const i of channelButtons.values()) {
+      i.classList.remove("active");
+    }
+    selected = channel;
+    start(channel);
+    channelButtons.get(channel)?.classList.add("active");
+    codeChannel.textContent = JSON.stringify(channel);
+  }
+
+  let selected = activeChannels.has("test") ? "test" : defaultChannel;
+
+  setActiveChannel(selected);
+});

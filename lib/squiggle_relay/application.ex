@@ -8,14 +8,13 @@ defmodule SquiggleRelay.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Supervisor.child_spec({SquiggleRelay.Realtime, channel: "events"},
-        id: {SquiggleRelay.Realtime, "events"}
-      ),
-      Supervisor.child_spec({SquiggleRelay.Realtime, channel: "test"},
-        id: {SquiggleRelay.Realtime, "test"}
-      ),
       {Phoenix.PubSub, name: SquiggleRelay.PubSub},
       {Bandit, plug: SquiggleRelay.Router, scheme: :http, port: 4000}
+      | for channel <- Application.get_env(:squiggle_relay, :channels) do
+          Supervisor.child_spec({SquiggleRelay.Realtime, channel: channel},
+            id: {SquiggleRelay.Realtime, channel}
+          )
+        end
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

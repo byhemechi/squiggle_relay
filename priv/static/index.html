@@ -3,6 +3,8 @@
     <head>
         <title>George's Squiggle Live Relay</title>
         <link rel="stylesheet" href="/assets/home.css" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <article>
@@ -39,7 +41,7 @@
                 class="highlight"
             ><code><span class="hljs-keyword">import</span> <span class="hljs-title class_">SquiggleRealtime</span> <span class="hljs-keyword">from</span> <span class="hljs-string"><script>document.write(JSON.stringify(new URL("/lib/squiggle_realtime.js", location)))</script></span>;
 
-<span class="hljs-keyword">const</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SquiggleRealtime</span>(<span class="hljs-string">"test"</span>);
+<span class="hljs-keyword">const</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SquiggleRealtime</span>(<span class="hljs-string" id="current_channel_snippet">"test"</span>);
 
 socket.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">"message"</span>, <span class="hljs-function">(<span class="hljs-params">{ detail }</span>) =&gt;</span> {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"Received message"</span>, detail)
@@ -48,12 +50,14 @@ socket.<span class="hljs-title function_">addEventListener</span>(<span class="h
 
         <template id="events">
             <aside>
+                <div id="channel_selector"></div>
                 <div id="event-list"></div></aside
         ></template>
         <script type="importmap">
             {
                 "imports": {
-                    "squiggle_realtime": "/lib/squiggle_realtime.js"
+                    "squiggle_realtime": "/lib/squiggle_realtime.js",
+                    "squiggle_realtime/client_data": "/lib/client.js"
                 }
             }
         </script>

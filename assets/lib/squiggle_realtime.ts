@@ -40,6 +40,7 @@ export default class SquiggleRealtime extends EventTarget {
     this.#reconnectTimer = setTimeout(
       () => {
         console.warn(`No messages for ${this.#reconnectThreshold / 1000}s`);
+        this.#retry();
       },
       Math.min(
         this.maxRetryInterval,

@@ -15,3 +15,5 @@ config :esbuild,
     cd: Path.expand("../assets/home", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
+
+import_config "#{config_env()}.exs"
