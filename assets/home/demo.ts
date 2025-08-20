@@ -14,23 +14,6 @@ let socket: SquiggleRealtime;
 function start(channel: string) {
   socket = new SquiggleRealtime(channel);
 
-  socket.addEventListener("close", () => {
-    const pingEl = document.createElement("div");
-
-    pingEl.style.viewTransitionName = `message-${Date.now()}`;
-    pingEl.className = "ping";
-    pingEl.textContent = "Disconnected";
-    output.appendChild(pingEl);
-  });
-  socket.addEventListener("open", () => {
-    const pingEl = document.createElement("div");
-
-    pingEl.style.viewTransitionName = `message-${Date.now()}`;
-    pingEl.className = "ping";
-    pingEl.textContent = "Connected";
-    output.appendChild(pingEl);
-  });
-
   socket.addEventListener("message", async (e) => {
     if (!(e instanceof CustomEvent && isEventMessage(e.detail))) return;
 
