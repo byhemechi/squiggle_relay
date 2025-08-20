@@ -1,0 +1,35 @@
+pre.highlight .hljs-keyword {
+    --theme-lightness: 0.6935667800866281;
+    --theme-chroma: 0.16352962213121144;
+    --theme-hue: 318.22109643029916;
+}
+
+pre.highlight .hljs-title {
+    --theme-lightness: 0.7277170828513578;
+    --theme-chroma: 0.120833564751699;
+    --theme-hue: 245.59018432076164;
+}
+
+pre.highlight .hljs-string {
+    --theme-lightness: 0.7683386032757104;
+    --theme-chroma: 0.11033998142415673;
+    --theme-hue: 132.9914523298297;
+}
+
+pre.highlight .hljs-function {
+    --theme-lightness: 0.7620918727503173;
+    --theme-chroma: 0.02013147718790706;
+    --theme-hue: 262.99925042144883;
+}
+
+pre.highlight .hljs-params {
+    --theme-lightness: 0.7620918727503173;
+    --theme-chroma: 0.02013147718790706;
+    --theme-hue: 262.99925042144883;
+}
+
+pre.highlight .hljs-variable {
+    --theme-lightness: 0.7273469878414037;
+    --theme-chroma: 0.09490779728478733;
+    --theme-hue: 63.81807094485714;
+}

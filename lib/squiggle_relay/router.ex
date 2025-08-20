@@ -34,7 +34,7 @@ defmodule SquiggleRelay.Router do
           """
           () {
           """,
-          if(state.retry_count >= 0,
+          if(state.retry_count > 0,
             do: [
               "    console.warn(\"The `",
               channel,

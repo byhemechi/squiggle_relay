@@ -33,7 +33,7 @@ defmodule SquiggleRelay.WebSocketEndpoint do
        reply_json(%SquiggleRelay.Event{
          event: :message,
          data: """
-         Welcome to George's Squiggle SSE relay.
+         You're connected to the #{state.channel} channel on byhemechi's Squiggle Event relay.
 
          This exists to reduce load on Squiggle's SSE server, which caps out at 40 concurrent subscribers.
          It should handle thousands of concurrent connections without issue.

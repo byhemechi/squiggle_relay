@@ -62,6 +62,8 @@ export default class SquiggleRealtime extends EventTarget {
 
         case data == "ping":
           this.socket.send("pong");
+
+          this.dispatchEvent(new Event("ping"));
           break;
 
         default:

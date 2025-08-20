@@ -1,46 +1,115 @@
 import SquiggleRealtime from "squiggle_realtime";
 import { isEventMessage } from "../lib/event";
 
-const socket = new SquiggleRealtime("test");
+const template = document.querySelector<HTMLTemplateElement>("#events");
 
-const output = document.querySelector("#event-list");
-if (!output) throw new Error("Output div not found???");
+const output = template.content.querySelector<HTMLDivElement>("#event-list");
+
+let didAppendContainer = false;
 
 const encoder = new TextEncoder();
 
-socket.addEventListener("message", async (e) => {
-  if (!(e instanceof CustomEvent && isEventMessage(e.detail))) return;
+function start() {
+  const socket = new SquiggleRealtime("test");
 
-  const messageElement = document.createElement(`div`);
-  messageElement.setAttribute("data-type", e.detail.event);
-  messageElement.id = e.detail.id;
-  messageElement.className = "message";
-  if (e.detail.event == "message" && typeof e.detail.data === "string") {
-    const bodyElement = document.createElement("p");
-    bodyElement.textContent = e.detail.data;
-    messageElement.appendChild(bodyElement);
-  } else {
-    const bodyElement = document.createElement("pre");
-    bodyElement.textContent = JSON.stringify(e.detail.data, null, 2);
-    messageElement.appendChild(bodyElement);
-  }
+  socket.addEventListener("close", () => {
+    const pingEl = document.createElement("div");
 
-  if (window.crypto?.subtle) {
-    const hash = await crypto.subtle.digest(
-      "sha-256",
-      encoder.encode(e.detail.event),
-    );
+    pingEl.style.viewTransitionName = `message-${Date.now()}`;
+    pingEl.className = "ping";
+    pingEl.textContent = "Disconnected";
+    output.appendChild(pingEl);
+  });
+  socket.addEventListener("open", () => {
+    const pingEl = document.createElement("div");
 
-    const hue = new Uint16Array(hash)[2];
-    messageElement.style.setProperty("--hue", hue.toString());
-  }
+    pingEl.style.viewTransitionName = `message-${Date.now()}`;
+    pingEl.className = "ping";
+    pingEl.textContent = "Connected";
+    output.appendChild(pingEl);
+  });
 
-  if ("startViewTransition" in document) {
-    document.startViewTransition(() => {
-      messageElement.style.viewTransitionName = `message-${e.detail.id}`;
+  socket.addEventListener("message", async (e) => {
+    if (!(e instanceof CustomEvent && isEventMessage(e.detail))) return;
+
+    const messageElement = document.createElement(`div`);
+    messageElement.setAttribute("data-type", e.detail.event);
+    messageElement.id = e.detail.id;
+    messageElement.className = "message";
+    if (e.detail.event == "message" && typeof e.detail.data === "string") {
+      const bodyElement = document.createElement("p");
+      bodyElement.textContent = e.detail.data;
+      messageElement.appendChild(bodyElement);
+    } else {
+      const bodyElement = document.createElement("pre");
+      bodyElement.textContent = JSON.stringify(e.detail.data, null, 2);
+      messageElement.appendChild(bodyElement);
+    }
+
+    if (window.crypto?.subtle) {
+      const hash = await crypto.subtle.digest(
+        "sha-256",
+        encoder.encode(e.detail.event),
+      );
+
+      const hue = new Uint16Array(hash)[7] % 360;
+      messageElement.style.setProperty("--hue", hue.toString());
+
+      let currentHue = Number(
+        getComputedStyle(document.documentElement).getPropertyValue("--hue"),
+      );
+
+      [, currentHue] = [currentHue - 360, currentHue, currentHue + 360]
+        .map((i, n) => [Math.abs(i - hue), i, n])
+        .sort(([a], [b]) => a - b)[0];
+
+      document.documentElement.style.setProperty("--hue", hue.toString());
+      document.documentElement.animate(
+        [
+          {
+            "--hue": currentHue,
+          },
+          { "--hue": hue },
+        ],
+        { easing: "ease", fill: "both", duration: 500 },
+      );
+    }
+
+    if (typeof document.startViewTransition !== "undefined") {
+      document.startViewTransition(() => {
+        messageElement.style.viewTransitionName = `message-${e.detail.id}`;
+        if (!didAppendContainer) {
+          document.body.appendChild(template.content);
+          didAppendContainer = true;
+        }
+        output.appendChild(messageElement);
+      });
+    } else {
+      if (!didAppendContainer) {
+        document.body.appendChild(template.content);
+        didAppendContainer = true;
+
+        document
+          .querySelector("article")
+          .animate([{ transform: "translateX(256px)" }, {}], {
+            duration: 500,
+            easing: "ease",
+          });
+      }
       output.appendChild(messageElement);
-    });
-  } else {
-    output.appendChild(messageElement);
-  }
-});
+    }
+  });
+
+  socket.addEventListener("ping", () => {
+    const pingEl = document.createElement("div");
+    pingEl.className = "ping";
+    pingEl.textContent = "Keepalive message";
+    output.appendChild(pingEl);
+  });
+}
+
+if (window.requestIdleCallback) {
+  requestIdleCallback(() => start());
+} else {
+  requestAnimationFrame(() => start());
+}

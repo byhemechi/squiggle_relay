@@ -5,8 +5,8 @@
         <link rel="stylesheet" href="/assets/home.css" />
     </head>
     <body>
-        <h1>George's Squiggle Live Relay</h1>
         <article>
+            <h1>Squiggle Event Relay</h1>
             <h2>What is this?</h2>
             <p>
                 <a href="https://squiggle.com.au">Squiggle</a> has a server-sent
@@ -20,7 +20,7 @@
             </p>
 
             <p>
-                It should be able to handle hundreds if not thousands of
+                The server should be able to handle hundreds if not thousands of
                 concurrent connections with no issue. There is no rate limit for
                 now, that may change if people abuse this. Please don't retry
                 immediately, use exponential back off.
@@ -35,18 +35,21 @@
                 subscribes to the events endpoint. It includes reconnects and
                 keepalives.
             </p>
-            <pre><code>import SquiggleRealtime from <script>document.write(JSON.stringify(new URL("/lib/squiggle_realtime.js", location)))</script>;
+            <pre
+                class="highlight"
+            ><code><span class="hljs-keyword">import</span> <span class="hljs-title class_">SquiggleRealtime</span> <span class="hljs-keyword">from</span> <span class="hljs-string"><script>document.write(JSON.stringify(new URL("/lib/squiggle_realtime.js", location)))</script></span>;
 
-const socket = new SquiggleRealtime("test");
+<span class="hljs-keyword">const</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SquiggleRealtime</span>(<span class="hljs-string">"test"</span>);
 
-socket.addEventListener("message", ({ detail }) => {
-    console.log("Received message", detail)
-});
-</code></pre>
+socket.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">"message"</span>, <span class="hljs-function">(<span class="hljs-params">{ detail }</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"Received message"</span>, detail)
+});</code></pre>
         </article>
-        <hr />
-        <h2>Events from the <code>test</code> channel</h2>
-        <div id="event-list"></div>
+
+        <template id="events">
+            <aside>
+                <div id="event-list"></div></aside
+        ></template>
         <script type="importmap">
             {
                 "imports": {
