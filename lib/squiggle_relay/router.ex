@@ -66,7 +66,9 @@ defmodule SquiggleRelay.Router do
     priv_dir = :code.priv_dir(:squiggle_relay)
     index_path = Path.join([priv_dir, "static", "index.html"])
 
-    send_file(conn, 200, index_path)
+    conn
+    |> put_resp_content_type("text/html")
+    |> send_file(200, index_path)
   end
 
   get "/healthz" do
