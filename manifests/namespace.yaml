@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: squiggle_relay
+  name: squiggle-relay

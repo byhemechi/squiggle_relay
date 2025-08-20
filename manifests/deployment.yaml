@@ -1,16 +1,18 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: squiggle_relay
+  name: squiggle-relay
 spec:
   replicas: 1
-  serviceName: squiggle_relay
   template:
+    metadata:
+      labels:
+        app: header-echo
     spec:
       setHostnameAsFQDN: true
       containers:
         - name: application
-          image: squiggle_relay
+          image: squiggle-relay
           livenessProbe:
             initialDelaySeconds: 5
             httpGet:
