@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - stateful_set.yaml
+  - service.yaml
+  - namespace.yaml
+images:
+  - name: squiggle_relay
+replacements:
+  - source:
+      fieldPath: metadata.name
+      kind: Service
+      name: squiggle_relay
+    targets:
+      - fieldPaths:
+          - spec.rules.*.backendRefs.[name=svc].name
+        select:
+          kind: HTTPRoute
+          name: route
+namespace: squiggle_relay
+labels:
+  - includeSelectors: true
+    pairs:
+      app: squiggle_relay

@@ -44,6 +44,10 @@ defmodule SquiggleRelay.Router do
     """)
   end
 
+  get "/healthz" do
+    send_resp(conn, 200, "OK")
+  end
+
   defp find_realtime_server(channel) do
     Supervisor.which_children(SquiggleRelay.Supervisor)
     |> Enum.find(fn
