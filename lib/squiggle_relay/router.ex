@@ -9,21 +9,23 @@ defmodule SquiggleRelay.Router do
     send_resp(conn, 404, "not found")
   end
 
-  get "/client.js" do
+  get "/lib/client.js" do
     live_channels =
-      for {{SquiggleRelay.Realtime, channel}, _pid, :worker, [SquiggleRelay.Realtime | _]} <-
+      for {{SquiggleRelay.Realtime, channel}, pid, :worker, [SquiggleRelay.Realtime | _]} <-
             Supervisor.which_children(SquiggleRelay.Supervisor) do
-        channel
+        {channel, pid}
       end
 
     conn
     |> put_resp_content_type("application/javascript")
     |> send_resp(200, [
       "export const activeChannels = new Set(",
-      JSON.encode_to_iodata!(live_channels),
+      # JSON.encode_to_iodata!(live_channels),
       ");\n\n",
       "const SquiggleChannel = {",
-      for channel <- live_channels do
+      for {channel, pid} <- live_channels do
+        state = GenServer.call(pid, :get_state)
+
         [
           "\n  get ",
           channel
@@ -31,6 +33,18 @@ defmodule SquiggleRelay.Router do
           |> Macro.camelize(),
           """
           () {
+          """,
+          if(state.retry_count >= 0,
+            do: [
+              "    console.warn(\"The `",
+              channel,
+              "` realtime socket is currently reconnecting. Messages may be missed (retries: ",
+              Integer.to_string(state.retry_count),
+              ")\");\n"
+            ],
+            else: []
+          ),
+          """
               return import(\"/lib/squiggle_realtime.js\")
                 .then(
                   ({ default: SquiggleRealtime }) =>

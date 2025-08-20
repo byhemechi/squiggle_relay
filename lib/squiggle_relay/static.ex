@@ -4,7 +4,7 @@ defmodule SquiggleRelay.Static do
   plug(Plug.Static,
     at: "/",
     from: {:squiggle_relay, "priv/static"},
-    only: ~w(lib js)
+    only: ~w(lib assets)
   )
 
   plug(:not_found)

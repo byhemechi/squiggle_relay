@@ -99,6 +99,10 @@ defmodule SquiggleRelay.Realtime do
     {:noreply, state}
   end
 
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
+  end
+
   def start_link(args \\ []) do
     channel = Keyword.get(args, :channel, :events)
     GenServer.start_link(__MODULE__, channel, args)
