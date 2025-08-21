@@ -1,4 +1,4 @@
 import Config
 
 config :logger, level: :info
-config :squiggle_relay, channels: ["events", "test"]
+config :squiggle_relay, channels: ["games", "events", "test"]

@@ -1,5 +1,9 @@
 import Config
-global_args = ~w(--bundle --target=safari16 --format=esm )
+
+config :squiggle_relay,
+  user_agent: "squiggle_relay #{config_env()} - byhemechi on twitter or discord"
+
+global_args = ~w(--bundle --target=safari16 --format=esm)
 
 config :esbuild,
   version: "0.25.0",

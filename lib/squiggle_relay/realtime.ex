@@ -63,7 +63,7 @@ defmodule SquiggleRelay.Realtime do
             {:cont, {req, res}}
           end,
           headers: %{
-            "user-agent" => "George's Squiggle API relay - byhemechi on twitter or discord"
+            "user-agent" => Application.get_env(:squiggle_relay, :user_agent)
           }
         )
       end)
@@ -74,7 +74,10 @@ defmodule SquiggleRelay.Realtime do
   end
 
   def handle_info(:check_connection, state) do
-    Logger.warning("No messages received in the last minute, reconnecting stream")
+    Logger.warning(
+      "[#{state.channel}] No messages received in the last minute, reconnecting stream"
+    )
+
     new_delay = min(state.retry_delay * 2, @max_retry_delay)
 
     Process.sleep(state.retry_delay)
@@ -89,7 +92,7 @@ defmodule SquiggleRelay.Realtime do
       )
       when is_binary(id) and is_binary(event) and is_binary(data) do
     with {:ok, data} <- JSON.decode(data) do
-      Logger.info("Received #{event} event with ID #{id}")
+      Logger.info("[#{channel}] Received #{event} event with ID #{id}")
 
       Phoenix.PubSub.broadcast(
         SquiggleRelay.PubSub,

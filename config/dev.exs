@@ -1,3 +1,3 @@
 import Config
 
-config :squiggle_relay, channels: ["events", "test"]
+config :squiggle_relay, channels: ["games", "events", "test"]
