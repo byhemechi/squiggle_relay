@@ -46,7 +46,7 @@ function start(channel: string) {
         encoder.encode(e.detail.event),
       );
 
-      const hue = new Uint16Array(hash)[7] % 360;
+      const hue = (new Uint16Array(hash)[7] / 0xffff) * 360;
       messageElement.style.setProperty("--hue", hue.toString());
 
       let currentHue = Number(
@@ -98,10 +98,6 @@ function start(channel: string) {
 const buttonContainer =
   template.content.querySelector<HTMLDivElement>("#channel_selector");
 
-const codeChannel = document.querySelector<HTMLSpanElement>(
-  "#current_channel_snippet",
-);
-
 import("squiggle_realtime/client_data").then(({ activeChannels }) => {
   let channelButtons = new Map<string, HTMLButtonElement>();
 
@@ -128,7 +124,6 @@ import("squiggle_realtime/client_data").then(({ activeChannels }) => {
         i.classList.remove("active");
       }
       channelButtons.get(channel)?.classList.add("active");
-      codeChannel.textContent = JSON.stringify(channel);
     });
   }
 

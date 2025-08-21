@@ -99,7 +99,7 @@ body {
 
 article {
     view-transition-name: article;
-    max-width: 100dvw;
+    max-width: min(1024px, 100dvw);
     align-self: center;
     margin: 0 auto;
     padding: 3rem;
@@ -187,19 +187,7 @@ aside {
 
 @media screen and (min-width: 1024px) {
     article {
-        padding: 5rem 0;
-    }
-
-    article > :not(pre) {
-        padding: 0 5rem;
-        max-width: 1024px;
-    }
-
-    article > pre {
-        margin: 0.5rem 0;
-        flex: 1;
-        padding: 2rem 5rem !important;
-        user-select: all;
+        padding: 5rem;
     }
 
     body {

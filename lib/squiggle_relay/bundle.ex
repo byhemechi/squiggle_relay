@@ -14,21 +14,21 @@ defmodule SquiggleRelay.Bundle do
   @outpath __DIR__ |> Path.join("../../priv/static") |> Path.expand()
   @asset_path __DIR__ |> Path.join("../../assets") |> Path.expand()
 
-  def append_immutable(path) do
-    basename = Path.basename(path)
-
-    if Regex.match?(~r/^.*\-[A-Z0-9]{8}\.*?$/, basename) do
-      path <> "?vsn=d"
-    else
-      path
-    end
-  end
-
   for {output_path, %{"entryPoint" => entry_point, "imports" => imports} = bundle} <-
         @bundle_info["outputs"] do
     ext = Path.extname(output_path)
 
-    output_path = Path.join(@asset_path, output_path) |> Path.expand()
+    relative_to_root = fn file ->
+      basename = Path.basename(file)
+      file = Path.join(@asset_path, file) |> Path.expand()
+      file = Path.join("/", Path.relative_to(file, @outpath))
+
+      if Regex.match?(~r/^.*\-[A-Z0-9]{8}\.*?$/, basename) do
+        file <> "?vsn=d"
+      else
+        file
+      end
+    end
 
     def paths(unquote(entry_point)) do
       unquote(
@@ -37,7 +37,7 @@ defmodule SquiggleRelay.Bundle do
             quote do
               %__MODULE__{
                 styles: [
-                  unquote(Path.join("/", Path.relative_to(output_path, @outpath)) <> "?vsn=d")
+                  unquote(relative_to_root.(output_path))
                 ]
               }
             end
@@ -46,7 +46,7 @@ defmodule SquiggleRelay.Bundle do
             quote do
               %__MODULE__{
                 scripts: [
-                  unquote(Path.join("/", Path.relative_to(output_path, @outpath)) <> "?vsn=d")
+                  unquote(relative_to_root.(output_path))
                 ],
                 externals:
                   unquote(
@@ -60,8 +60,7 @@ defmodule SquiggleRelay.Bundle do
                   unquote(
                     case bundle do
                       %{"cssBundle" => css_bundle} ->
-                        css_bundle = Path.join(@asset_path, css_bundle) |> Path.expand()
-                        [Path.join("/", Path.relative_to(css_bundle, @outpath)) <> "?vsn=d"]
+                        [relative_to_root.(css_bundle)]
 
                       _ ->
                         []
@@ -75,9 +74,8 @@ defmodule SquiggleRelay.Bundle do
   end
 
   def merge(chunks) when is_list(chunks) do
-    for %__MODULE{} = chunk <- chunks do
-      chunk
-    end
+    chunks
+    |> IO.inspect()
     |> Enum.reduce(%__MODULE__{}, fn chunk, acc ->
       %__MODULE__{
         scripts: acc.scripts ++ chunk.scripts,

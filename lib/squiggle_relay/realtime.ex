@@ -28,7 +28,7 @@ defmodule SquiggleRelay.Realtime do
     case state do
       %__MODULE__{worker: pid} when is_pid(pid) ->
         Logger.info("Killing old socket process")
-        Process.exit(pid, :normal)
+        Process.exit(pid, :kill)
 
       _ ->
         nil

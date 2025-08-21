@@ -1,5 +1,5 @@
 import Config
-global_args = ~w(--bundle --target=es2022 --format=esm )
+global_args = ~w(--bundle --target=safari16 --format=esm )
 
 config :esbuild,
   version: "0.25.0",
@@ -17,9 +17,9 @@ config :esbuild,
         --splitting
         --metafile=../lib/squiggle_relay/bundle.json
         --outdir=../priv/static/assets/
-        --entry-names=[dir]/[name]-[hash]
         ),
-        global_args
+        global_args,
+        if(config_env() == :prod, do: ["--entry-names=[dir]/[name]-[hash]"], else: [])
       ]
       |> List.flatten(),
     cd: Path.expand("../assets", __DIR__),

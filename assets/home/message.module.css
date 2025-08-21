@@ -92,8 +92,7 @@
     display: block;
 }
 
-.message,
-article pre {
+.message {
     font-size: 1em;
     display: flex;
     flex-direction: column;
