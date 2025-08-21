@@ -1,5 +1,5 @@
 import Config
-global_args = ~w(--splitting --bundle --target=es2022 --format=esm )
+global_args = ~w(--bundle --target=es2022 --format=esm )
 
 config :esbuild,
   version: "0.25.0",
@@ -10,9 +10,19 @@ config :esbuild,
   ],
   client: [
     args:
-      ~w(demo.ts home.css --external:squiggle_realtime --splitting --outdir=../../priv/static/assets/) ++
-        global_args,
-    cd: Path.expand("../assets/home", __DIR__),
+      [
+        ~w(
+        home/demo.ts home/home.css
+        --external:squiggle_realtime
+        --splitting
+        --metafile=../lib/squiggle_relay/bundle.json
+        --outdir=../priv/static/assets/
+        --entry-names=[dir]/[name]-[hash]
+        ),
+        global_args
+      ]
+      |> List.flatten(),
+    cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 

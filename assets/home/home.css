@@ -90,8 +90,9 @@ body {
 
 #channel_selector button.active {
     color: light-dark(oklch(0.95 0.02 var(--hue)), oklch(0.2 0.02 var(--hue)));
+    view-transition-name: active-toggle;
     background: light-dark(
-        oklch(0.6 0.12 var(--hue)),
+        oklch(0.4 0.1 var(--hue)),
         oklch(0.7 0.12 var(--hue))
     );
 }
@@ -140,10 +141,6 @@ article p {
     color: light-dark(oklch(0.3 0.2 var(--hue)), oklch(0.9 0.05 var(--hue)));
 }
 
-article .highlight span {
-    color: oklch(0.9 0.13 calc(var(--theme-hue)));
-}
-
 article > * {
     margin: 0;
 }
@@ -173,18 +170,13 @@ aside {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    view-transition-name: panel;
 }
 
 @keyframes slideInLeft {
     from {
         opacity: 0;
         transform: translateX(100%);
-    }
-}
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-100%);
     }
 }
 @keyframes moveOver {
@@ -198,15 +190,15 @@ aside {
         padding: 5rem 0;
     }
 
-    article > :not(.highlight) {
+    article > :not(pre) {
         padding: 0 5rem;
         max-width: 1024px;
     }
 
-    article > .highlight {
+    article > pre {
         margin: 0.5rem 0;
         flex: 1;
-        padding: 2rem 5rem;
+        padding: 2rem 5rem !important;
         user-select: all;
     }
 
@@ -231,23 +223,6 @@ aside {
     gap: 1.5rem;
 }
 
-#event-list .ping {
-    text-align: center;
-    font-size: 1.25em;
-    display: flex;
-    color: oklch(0.5 0.05 var(--hue));
-    align-items: center;
-    justify-content: center;
-    gap: 0.33em;
-}
-
-#event-list .ping::before {
-    content: "ⓘ";
-    font-size: 125%;
-    display: block;
-}
-
-#event-list .message,
 article pre {
     font-size: 1em;
     display: flex;
@@ -258,66 +233,11 @@ article pre {
     box-shadow:
         0 4px 6px -1px rgb(0 0 0 / 0.1),
         0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-
-pre {
     background: oklch(0.2333 0.05 var(--hue));
     color: oklch(0.98 0.02 var(--hue));
     padding: 1rem;
     margin: 0;
     overflow: auto;
-}
-
-#event-list .message[data-type="message"] {
-    background: light-dark(
-        oklch(0.95 0.02 var(--hue)),
-        oklch(0.2333 0.05 var(--hue))
-    );
-    color: light-dark(oklch(0.1 0.05 var(--hue)), oklch(0.98 0.02 var(--hue)));
-}
-
-#event-list .message p {
-    white-space: pre-wrap;
-    padding: 0 1rem;
-}
-
-#event-list .message::before {
-    font-weight: bold;
-    font-size: 1.5em;
-    height: 3rem;
-    background: oklch(0.4 0.1 var(--hue));
-    padding: 0.75rem 1rem;
-    color: oklch(0.98 0.02 var(--hue));
-    font-family: monospace;
-    content: attr(data-type);
-    display: block;
-}
-
-#event-list .message::after {
-    content: attr(id);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: oklch(0.5 0.1 var(--hue));
-    position: absolute;
-    top: 0.75rem;
-    right: 1em;
-    width: 1.5rem;
-    white-space: pre;
-    overflow: hidden;
-    height: 1.5rem;
-    font-family: monospace;
-    box-sizing: border-box;
-    pointer-events: auto;
-    interpolate-size: allow-keywords;
-    transition: width 0.2s ease;
-    padding: 0 0.4rem;
-    border-radius: 0.25rem;
-    color: oklch(0.75 0.1 var(--hue));
-}
-
-#event-list .message:hover::after {
-    width: max-content;
 }
 
 hr {

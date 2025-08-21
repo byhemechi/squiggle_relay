@@ -25,3 +25,5 @@ squiggle_relay-*.tar
 /priv/static/assets/
 /priv/static/lib/
 /priv/static/chunk-*
+
+/lib/squiggle_relay/bundle.json

@@ -1,4 +1,5 @@
 defmodule SquiggleRelay.Router do
+  require SquiggleRelay.Templates
   use Plug.Router
 
   plug(Plug.Logger)
@@ -23,7 +24,7 @@ defmodule SquiggleRelay.Router do
       JSON.encode_to_iodata!(Enum.map(live_channels, &elem(&1, 0))),
       ");\n\n",
       "const SquiggleChannel = {",
-      for {channel, pid} <- live_channels do
+      for {channel, _pid} <- live_channels do
         [
           "\n  get ",
           channel
@@ -50,13 +51,26 @@ defmodule SquiggleRelay.Router do
     ])
   end
 
+  @readme Path.join(__DIR__, "../../README.md")
+          |> File.read!()
+          |> MDEx.to_html!(syntax_highlight: [formatter: :html_linked])
+
   get "/" do
-    priv_dir = :code.priv_dir(:squiggle_relay)
-    index_path = Path.join([priv_dir, "static", "index.html"])
+    require SquiggleRelay.Templates
+
+    title = "Squiggle Event Relay"
+
+    bundle =
+      [
+        SquiggleRelay.Bundle.paths("home/home.css"),
+        SquiggleRelay.Bundle.paths("home/demo.ts")
+      ]
+      |> SquiggleRelay.Bundle.merge()
+      |> SquiggleRelay.Bundle.render()
 
     conn
     |> put_resp_content_type("text/html")
-    |> send_file(200, index_path)
+    |> send_resp(200, SquiggleRelay.Templates.render("home"))
   end
 
   get "/healthz" do

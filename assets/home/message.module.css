@@ -1,0 +1,106 @@
+.message {
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-radius: 0.5rem;
+    overflow: auto;
+    box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+.message[data-type="message"] {
+    background: light-dark(
+        oklch(0.95 0.02 var(--hue)),
+        oklch(0.2333 0.05 var(--hue))
+    );
+    color: light-dark(oklch(0.1 0.05 var(--hue)), oklch(0.98 0.02 var(--hue)));
+}
+
+.message pre {
+    background: oklch(0.2333 0.05 var(--hue));
+    color: oklch(0.98 0.02 var(--hue));
+    padding: 1rem;
+    margin: 0;
+    overflow: auto;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+
+.message p {
+    white-space: pre-wrap;
+    padding: 0 1rem;
+}
+
+.message::before {
+    font-weight: bold;
+    font-size: 1.5em;
+    height: 3rem;
+    background: oklch(0.4 0.1 var(--hue));
+    padding: 0.75rem 1rem;
+    color: oklch(0.98 0.02 var(--hue));
+    font-family: monospace;
+    content: attr(data-type);
+    display: block;
+
+    &::after {
+        content: attr(id);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: oklch(0.5 0.1 var(--hue));
+        position: absolute;
+        top: 0.75rem;
+        right: 1em;
+        width: 1.5rem;
+        white-space: pre;
+        overflow: hidden;
+        height: 1.5rem;
+        font-family: monospace;
+        box-sizing: border-box;
+        pointer-events: auto;
+        interpolate-size: allow-keywords;
+        transition: width 0.2s ease;
+        padding: 0 0.4rem;
+        border-radius: 0.25rem;
+        color: oklch(0.75 0.1 var(--hue));
+    }
+}
+
+.message:hover::after {
+    width: max-content;
+}
+
+.ping {
+    text-align: center;
+    font-size: 1.25em;
+    display: flex;
+    color: oklch(0.5 0.05 var(--hue));
+    align-items: center;
+    justify-content: center;
+    gap: 0.33em;
+}
+
+.ping::before {
+    content: "ⓘ";
+    font-size: 125%;
+    display: block;
+}
+
+.message,
+article pre {
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-radius: 0.5rem;
+    overflow: auto;
+    box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
+}

@@ -29,7 +29,8 @@ defmodule SquiggleRelay.MixProject do
       {:uuid, "~> 1.1"},
       {:websock_adapter, "~> 0.5"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:esbuild, "~> 0.10"}
+      {:esbuild, "~> 0.10"},
+      {:mdex, "~> 0.8"}
     ]
   end
 end

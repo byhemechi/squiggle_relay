@@ -1,5 +1,8 @@
-import SquiggleRealtime from "squiggle_realtime";
+import SquiggleRealtime from "../lib/squiggle_realtime";
 import { isEventMessage } from "../lib/event";
+import transition from "./transition";
+
+import { message as messageClass, ping } from "./message.module.css";
 
 const template = document.querySelector<HTMLTemplateElement>("#events");
 
@@ -20,7 +23,12 @@ function start(channel: string) {
     const messageElement = document.createElement(`div`);
     messageElement.setAttribute("data-type", e.detail.event);
     messageElement.id = e.detail.id;
-    messageElement.className = "message";
+    messageElement.className = messageClass;
+
+    messageElement.style.setProperty(
+      "view-transition-name",
+      `message-${e.detail.id}`,
+    );
 
     if (e.detail.event == "message" && typeof e.detail.data === "string") {
       const bodyElement = document.createElement("p");
@@ -61,35 +69,28 @@ function start(channel: string) {
       );
     }
 
-    if (typeof document.startViewTransition !== "undefined") {
-      document.startViewTransition(() => {
-        messageElement.style.viewTransitionName = `message-${e.detail.id}`;
-        if (!didAppendContainer) {
-          document.body.appendChild(template.content);
-          didAppendContainer = true;
-        }
-        output.appendChild(messageElement);
-      });
-    } else {
+    transition((isPolyfilled) => {
       if (!didAppendContainer) {
         document.body.appendChild(template.content);
         didAppendContainer = true;
 
-        document
-          .querySelector("article")
-          .animate([{ transform: "translateX(256px)" }, {}], {
-            duration: 500,
-            easing: "ease",
-          });
+        if (isPolyfilled)
+          document
+            .querySelector("article")
+            .animate([{ transform: "translateX(256px)" }, {}], {
+              duration: 500,
+              easing: "ease",
+            });
       }
       output.appendChild(messageElement);
-    }
+    });
   });
 
   socket.addEventListener("ping", () => {
     const pingEl = document.createElement("div");
-    pingEl.className = "ping";
+    pingEl.className = ping;
     pingEl.textContent = "Keepalive message";
+    pingEl.style.setProperty("view-transition-name", `ping-${Date.now()}`);
     output.appendChild(pingEl);
   });
 }
@@ -119,13 +120,16 @@ import("squiggle_realtime/client_data").then(({ activeChannels }) => {
   const [defaultChannel] = activeChannels;
 
   function setActiveChannel(channel: string) {
-    for (const i of channelButtons.values()) {
-      i.classList.remove("active");
-    }
     selected = channel;
     start(channel);
-    channelButtons.get(channel)?.classList.add("active");
-    codeChannel.textContent = JSON.stringify(channel);
+
+    transition(() => {
+      for (const i of channelButtons.values()) {
+        i.classList.remove("active");
+      }
+      channelButtons.get(channel)?.classList.add("active");
+      codeChannel.textContent = JSON.stringify(channel);
+    });
   }
 
   let selected = activeChannels.has("test") ? "test" : defaultChannel;
