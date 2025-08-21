@@ -75,7 +75,6 @@ defmodule SquiggleRelay.Bundle do
 
   def merge(chunks) when is_list(chunks) do
     chunks
-    |> IO.inspect()
     |> Enum.reduce(%__MODULE__{}, fn chunk, acc ->
       %__MODULE__{
         scripts: acc.scripts ++ chunk.scripts,

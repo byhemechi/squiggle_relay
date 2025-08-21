@@ -109,7 +109,6 @@ defmodule SquiggleRelay.Realtime do
   end
 
   def handle_info({:squiggle_event, event}, state) do
-    IO.inspect(event, label: "event fell through")
     {:noreply, state}
   end
 
