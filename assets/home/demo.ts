@@ -46,7 +46,7 @@ function start(channel: string) {
         encoder.encode(e.detail.event),
       );
 
-      const hue = (new Uint16Array(hash)[7] / 0xffff) * 360;
+      const hue = (new Uint8Array(hash)[14] / 0xff) * 360;
       messageElement.style.setProperty("--hue", hue.toString());
 
       let currentHue = Number(
@@ -91,7 +91,7 @@ function start(channel: string) {
     pingEl.className = ping;
     pingEl.textContent = "Keepalive message";
     pingEl.style.setProperty("view-transition-name", `ping-${Date.now()}`);
-    output.appendChild(pingEl);
+    transition(() => output.appendChild(pingEl));
   });
 }
 
