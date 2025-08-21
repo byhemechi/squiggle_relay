@@ -28,6 +28,7 @@ RUN mix deps.get --only $MIX_ENV
 COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
+COPY README.md .
 COPY lib lib
 COPY priv priv
 COPY assets assets
