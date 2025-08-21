@@ -58,8 +58,6 @@ defmodule SquiggleRelay.Router do
   get "/" do
     require SquiggleRelay.Templates
 
-    title = "Squiggle Event Relay"
-
     bundle =
       [
         SquiggleRelay.Bundle.paths("home/home.css"),
@@ -68,9 +66,14 @@ defmodule SquiggleRelay.Router do
       |> SquiggleRelay.Bundle.merge()
       |> SquiggleRelay.Bundle.render()
 
+    args =
+      bundle
+      |> Map.put(:title, "Squiggle Event Relay")
+      |> Map.put(:body, @readme)
+
     conn
     |> put_resp_content_type("text/html")
-    |> send_resp(200, SquiggleRelay.Templates.render("home"))
+    |> send_resp(200, SquiggleRelay.Templates.home(args))
   end
 
   get "/healthz" do
