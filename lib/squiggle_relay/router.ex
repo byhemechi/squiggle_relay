@@ -24,8 +24,6 @@ defmodule SquiggleRelay.Router do
       ");\n\n",
       "const SquiggleChannel = {",
       for {channel, pid} <- live_channels do
-        state = GenServer.call(pid, :get_state)
-
         [
           "\n  get ",
           channel
@@ -34,16 +32,6 @@ defmodule SquiggleRelay.Router do
           """
           () {
           """,
-          if(state.retry_count > 0,
-            do: [
-              "    console.warn(\"The `",
-              channel,
-              "` realtime socket is currently reconnecting. Messages might be missed (retries: ",
-              Integer.to_string(state.retry_count),
-              ")\");\n"
-            ],
-            else: []
-          ),
           """
               return import(\"/lib/squiggle_realtime.js\")
                 .then(
