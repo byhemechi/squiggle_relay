@@ -56,8 +56,8 @@ body {
 #channel_selector {
     display: inline-flex;
     background: light-dark(
-        oklch(0.92 0.025 var(--hue)),
-        oklch(0.2 0.025 var(--hue))
+        oklch(0.9 0.02 var(--hue)),
+        oklch(0.2 0.02 var(--hue))
     );
     color: light-dark(oklch(0.2 0.025 var(--hue)), oklch(0.8 0.025 var(--hue)));
     padding: 0.33rem;
