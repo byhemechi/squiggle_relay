@@ -15,8 +15,6 @@ export default class SquiggleRealtime extends EventTarget {
   constructor(channel = "events", baseURL = import.meta.url) {
     super();
 
-    console.log(baseURL);
-
     this.endpoint = new URL(`/websocket/${encodeURI(channel)}`, baseURL);
 
     this.connect();
