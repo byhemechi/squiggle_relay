@@ -4,7 +4,7 @@ import { isEventMessage } from "squiggle_realtime/event";
 import transition from "./transition";
 import { activeChannels } from "client_data";
 
-import { message as messageClass, ping } from "./message.module.css";
+import { message as messageClass, ping, outdated } from "./message.module.css";
 
 const encoder = new TextEncoder();
 
@@ -22,32 +22,52 @@ export default class Demo extends HTMLElement {
       ".channel_selector",
     );
 
+  #joinTimeout: ReturnType<typeof setTimeout>;
+
   connectedCallback() {
-    for (const channel of activeChannels) {
-      const button = document.createElement("button");
-      button.textContent = channel;
-      this.#channelButtons.set(channel, button);
+    const defaultChannel = activeChannels.has("test")
+      ? "test"
+      : activeChannels[0];
+    transition(() => {
+      for (const channel of activeChannels) {
+        const button = document.createElement("button");
+        button.textContent = channel;
+        this.#channelButtons.set(channel, button);
 
-      button.addEventListener("click", () => {
-        this.#socket.disconnect();
-        this.setActiveChannel(channel);
-      });
+        button.addEventListener("click", () => {
+          this.#socket.disconnect();
+          this.setActiveChannel(channel);
+        });
 
-      this.buttonContainer.appendChild(button);
-    }
-    const [defaultChannel] = activeChannels;
+        this.buttonContainer.appendChild(button);
+      }
+      this.#channelButtons.get(defaultChannel)?.classList.add("active");
+    });
 
-    let selected = activeChannels.has("test") ? "test" : defaultChannel;
-
-    this.setActiveChannel(selected);
+    this.#joinTimeout = setTimeout(() => {
+      this.setActiveChannel(defaultChannel);
+      this.#output.innerHTML = "";
+    }, 500);
   }
 
   disconnectedCallback() {
+    clearTimeout(this.#joinTimeout);
     this.#socket.disconnect();
   }
 
   start(channel: string) {
     this.#socket = new SquiggleRealtime(channel);
+
+    this.#socket.addEventListener("open", () => {
+      transition(() => {
+        for (const message of this.#output.getElementsByClassName(
+          messageClass,
+        )) {
+          console.log(message);
+          message.classList.add(outdated);
+        }
+      });
+    });
 
     this.#socket.addEventListener("message", async (e) => {
       if (!(e instanceof CustomEvent && isEventMessage(e.detail))) return;

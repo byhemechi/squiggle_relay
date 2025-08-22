@@ -8,43 +8,15 @@ defmodule SquiggleRelay.Router do
 
   get "/lib/client.js" do
     live_channels =
-      for {{SquiggleRelay.Realtime, channel}, pid, :worker, [SquiggleRelay.Realtime | _]} <-
+      for {{SquiggleRelay.Realtime, channel}, _pid, :worker, [SquiggleRelay.Realtime | _]} <-
             Supervisor.which_children(SquiggleRelay.Supervisor) do
-        {channel, pid}
+        channel
       end
+      |> Enum.uniq()
 
     conn
     |> put_resp_content_type("application/javascript")
-    |> send_resp(200, [
-      "export const activeChannels = new Set(",
-      JSON.encode_to_iodata!(Enum.map(live_channels, &elem(&1, 0))),
-      ");\n\n",
-      "const SquiggleChannel = {",
-      for {channel, _pid} <- live_channels do
-        [
-          "\n  get ",
-          channel
-          |> String.replace(~r/[^a-z]+/, "_")
-          |> Macro.camelize(),
-          """
-          () {
-          """,
-          """
-              return import(\"/lib/squiggle_realtime.js\")
-                .then(
-                  ({ default: SquiggleRealtime }) =>
-                    new SquiggleRealtime(\
-          """,
-          JSON.encode_to_iodata!(channel),
-          """
-          )
-                )
-            },\
-          """
-        ]
-      end,
-      "\n}\n\nexport default SquiggleChannel;"
-    ])
+    |> send_resp(200, SquiggleRelay.Templates."client.js"(channels: live_channels))
   end
 
   @readme Path.join(__DIR__, "../../README.md")
@@ -52,8 +24,6 @@ defmodule SquiggleRelay.Router do
           |> MDEx.to_html!(syntax_highlight: [formatter: :html_linked])
 
   get "/" do
-    require SquiggleRelay.Templates
-
     bundle =
       SquiggleRelay.Bundle.resource("home/home.css")
 

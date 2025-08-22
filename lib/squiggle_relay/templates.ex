@@ -15,7 +15,7 @@ defmodule SquiggleRelay.Templates do
             |> Floki.parse_document!()
             |> Floki.traverse_and_update(%Bundle{}, &SquiggleRelay.Components.bundle_template/2)
 
-          {"<!doctype html>" <> Floki.raw_html(document, encode: false), deps}
+          {"<!DOCTYPE html>" <> Floki.raw_html(document, encode: false), deps}
 
         _ ->
           {File.read!(file), []}

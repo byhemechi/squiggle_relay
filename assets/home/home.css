@@ -9,14 +9,13 @@
 
 @media screen and (min-width: 1280px) {
     body {
-        grid-template-columns: minmax(0, 1fr) 512px;
+        grid-template-columns: minmax(0, auto) 32rem;
     }
 
     socket-demo {
         height: 100dvh;
         position: sticky;
         top: 0;
-        overflow: auto;
     }
 }
 

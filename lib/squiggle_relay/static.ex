@@ -16,7 +16,13 @@ defmodule SquiggleRelay.Static do
       404,
       SquiggleRelay.Templates."page.html"(
         title: "Page not found",
-        body: "<h1>404 - Page not found</h1>"
+        body: """
+        <center>
+          <h1>404 - Page not found</h1>
+          <p>Looks like you've either followed a dead link or typed in a URL wrong.</p>
+          <p>You could <a href="/">go back to the homepage</a></p>
+        </center>
+        """
       )
     )
   end

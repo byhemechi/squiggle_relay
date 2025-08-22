@@ -6,8 +6,7 @@
 
 aside {
     padding: 2rem;
-    overflow: hidden;
-    flex: 1;
+    overflow: auto;
     width: 100%;
     height: 100%;
     background: light-dark(
@@ -17,22 +16,25 @@ aside {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    view-transition-name: panel;
 }
 
 .event_list {
     display: flex;
     flex-direction: column-reverse;
     align-self: flex-start;
+    width: 100%;
     gap: 1.5rem;
 }
 
 .channel_selector {
     display: inline-flex;
+    height: 3rem;
+    min-width: 3rem;
     background: light-dark(
-        oklch(0.92 0.02 var(--hue)),
-        oklch(0.17 0.02 var(--hue))
+        oklch(0.87 0.02 var(--hue) / 0.5),
+        oklch(0.22 0.02 var(--hue) / 0.5)
     );
+    backdrop-filter: blur(1rem);
     color: light-dark(oklch(0.2 0.025 var(--hue)), oklch(0.8 0.025 var(--hue)));
     padding: 0.43rem;
     gap: 0.33rem;
@@ -65,11 +67,25 @@ aside {
 .channel_selector button.active {
     color: light-dark(oklch(0.95 0.02 var(--hue)), oklch(0.2 0.02 var(--hue)));
     view-transition-name: active-toggle;
+    --shadow-colour: color-mix(
+        in oklab,
+        color-mix(
+                in oklab,
+                light-dark(
+                        oklch(0.4 0.1 var(--hue)),
+                        oklch(0.7 0.12 var(--hue))
+                    )
+                    50%,
+                transparent
+            )
+            50%,
+        transparent
+    );
     box-shadow:
-        0 4px 6px -1px rgb(0 0 0 / 0.1),
-        0 2px 4px -2px rgb(0 0 0 / 0.1);
+        0 10px 15px -3px var(--shadow-colour),
+        0 4px 6px -4px var(--shadow-colour);
     background: light-dark(
-        oklch(0.4 0.1 var(--hue)),
-        oklch(0.7 0.12 var(--hue))
+        oklch(0.5 0.1 var(--hue)),
+        oklch(0.6 0.12 var(--hue))
     );
 }
