@@ -6,10 +6,6 @@ defmodule SquiggleRelay.Router do
   plug(:match)
   plug(:dispatch)
 
-  defp send_not_found(conn) do
-    send_resp(conn, 404, "not found")
-  end
-
   get "/lib/client.js" do
     live_channels =
       for {{SquiggleRelay.Realtime, channel}, pid, :worker, [SquiggleRelay.Realtime | _]} <-
@@ -59,21 +55,14 @@ defmodule SquiggleRelay.Router do
     require SquiggleRelay.Templates
 
     bundle =
-      [
-        SquiggleRelay.Bundle.paths("home/home.css"),
-        SquiggleRelay.Bundle.paths("home/demo.ts")
-      ]
-      |> SquiggleRelay.Bundle.merge()
-      |> SquiggleRelay.Bundle.render()
-
-    args =
-      bundle
-      |> Map.put(:title, "Squiggle Event Relay")
-      |> Map.put(:body, @readme)
+      SquiggleRelay.Bundle.resource("home/home.css")
 
     conn
     |> put_resp_content_type("text/html")
-    |> send_resp(200, SquiggleRelay.Templates.home(args))
+    |> send_resp(
+      200,
+      SquiggleRelay.Templates."home.html"([title: "Squiggle Event Relay", body: @readme], bundle)
+    )
   end
 
   get "/healthz" do
@@ -99,7 +88,8 @@ defmodule SquiggleRelay.Router do
       |> WebSockAdapter.upgrade(SquiggleRelay.WebSocketEndpoint, %{channel: channel}, [])
       |> halt()
     else
-      _ -> send_not_found(conn)
+      _ ->
+        SquiggleRelay.Static.not_found(conn)
     end
   end
 

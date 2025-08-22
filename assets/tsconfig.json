@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "paths": {
-      "squiggle_realtime/client_data": ["./lib/client_data"],
-      "squiggle_realtime": ["./lib/squiggle_realtime.ts"]
+      "squiggle_realtime": ["./lib/squiggle_realtime/index.ts"],
+      "squiggle_realtime/*": ["./lib/squiggle_realtime/*"]
     },
     "module": "ES2022",
     "target": "ES2022"

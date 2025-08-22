@@ -9,7 +9,15 @@ defmodule SquiggleRelay.Static do
 
   plug(:not_found)
 
-  def not_found(conn, _) do
-    send_resp(conn, 404, "not found")
+  def not_found(conn, _ \\ []) do
+    conn
+    |> put_resp_content_type("text/html")
+    |> send_resp(
+      404,
+      SquiggleRelay.Templates."page.html"(
+        title: "Page not found",
+        body: "<h1>404 - Page not found</h1>"
+      )
+    )
   end
 end

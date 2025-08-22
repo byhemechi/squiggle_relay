@@ -30,7 +30,9 @@ defmodule SquiggleRelay.MixProject do
       {:websock_adapter, "~> 0.5"},
       {:phoenix_pubsub, "~> 2.1"},
       {:esbuild, "~> 0.10"},
-      {:mdex, "~> 0.8"}
+      {:mdex, "~> 0.8"},
+      {:phoenix_html, "~> 4.2"},
+      {:floki, "~> 0.38"}
     ]
   end
 end

@@ -1,5 +1,45 @@
+defmodule SquiggleRelay.Bundle.Rendered do
+  defstruct head: [], body: []
+
+  @doc false
+  @spec fetch_assign!(Access.t(), Access.key()) :: term | nil
+  def fetch_assign!(%__MODULE__{} = bundle, key) do
+    case Map.get(bundle, key) do
+      nil ->
+        IO.warn("^#{key} is not a valid bundle section")
+
+      v ->
+        v
+    end
+  end
+end
+
+defimpl String.Chars, for: SquiggleRelay.Bundle.Rendered do
+  def to_string(term) do
+    map =
+      term
+      |> Map.from_struct()
+
+    Map.values(map)
+    |> case do
+      [_ | _] = v ->
+        IO.warn([
+          "Rendering a bundle with multiple sections (",
+          inspect(Map.keys(map)),
+          "). This will put things where you probably don't expect them!"
+        ])
+
+        v
+
+      v ->
+        v
+    end
+    |> IO.chardata_to_string()
+  end
+end
+
 defmodule SquiggleRelay.Bundle do
-  defstruct scripts: [], styles: [], externals: %{}
+  defstruct scripts: [], styles: [], components: %{}, externals: %{}
 
   @bundle_info Path.expand(__DIR__)
                |> Path.join("./bundle.json")
@@ -8,7 +48,7 @@ defmodule SquiggleRelay.Bundle do
 
   @external_imports %{
     "squiggle_realtime" => "/lib/squiggle_realtime.js",
-    "squiggle_realtime/client_data" => "/lib/client.js"
+    "client_data" => "/lib/client.js"
   }
 
   @outpath __DIR__ |> Path.join("../../priv/static") |> Path.expand()
@@ -30,7 +70,7 @@ defmodule SquiggleRelay.Bundle do
       end
     end
 
-    def paths(unquote(entry_point)) do
+    def resource(unquote(entry_point)) do
       unquote(
         case ext do
           ".css" ->
@@ -75,29 +115,76 @@ defmodule SquiggleRelay.Bundle do
 
   def merge(chunks) when is_list(chunks) do
     chunks
-    |> Enum.reduce(%__MODULE__{}, fn chunk, acc ->
-      %__MODULE__{
-        scripts: acc.scripts ++ chunk.scripts,
-        styles: acc.styles ++ chunk.styles,
-        externals: Map.merge(acc.externals, chunk.externals)
-      }
+    |> List.flatten()
+    |> Enum.reduce(%__MODULE__{}, fn
+      %__MODULE__{} = chunk, acc ->
+        %__MODULE__{
+          scripts: acc.scripts ++ chunk.scripts,
+          styles: acc.styles ++ chunk.styles,
+          externals: Map.merge(acc.externals, chunk.externals),
+          components: Map.merge(acc.components, chunk.components)
+        }
+
+      _, _ ->
+        raise __MODULE__.InvalidChunk
     end)
   end
 
-  def render(%__MODULE__{scripts: scripts, styles: styles, externals: externals}) do
-    %{
-      scripts: [
-        "<script type=\"importmap\">{\"imports\":",
-        JSON.encode_to_iodata!(externals),
-        "}</script>",
-        for script <- scripts do
-          ["<script type=\"module\" src=", JSON.encode_to_iodata!(script), "></script>"]
+  def render(%__MODULE__{
+        scripts: scripts,
+        styles: styles,
+        externals: externals,
+        components: components
+      }) do
+    %__MODULE__.Rendered{
+      body:
+        [
+          if(externals !== %{},
+            do: [
+              "<script type=\"importmap\">{\"imports\":",
+              JSON.encode_to_iodata!(externals),
+              "}</script>"
+            ],
+            else: ""
+          ),
+          if(components !== %{},
+            do: [
+              "<script type=\"module\">",
+              for({name, path} <- components) do
+                [
+                  "import(",
+                  JSON.encode_to_iodata!(path),
+                  ").then(({default:c})=>customElements.define(",
+                  JSON.encode_to_iodata!(name),
+                  ",c));"
+                ]
+              end,
+              "</script>"
+            ],
+            else: []
+          ),
+          for script <- Enum.uniq(scripts) do
+            ["<script type=\"module\" src=", JSON.encode_to_iodata!(script), "></script>"]
+          end
+        ]
+        |> IO.chardata_to_string(),
+      head:
+        for style <- Enum.uniq(styles) do
+          [
+            "<link rel=\"stylesheet\" href=",
+            JSON.encode_to_iodata!(style),
+            " type=\"text/css\"/>"
+          ]
         end
-      ],
-      styles:
-        for style <- styles do
-          ["<link rel=\"stylesheet\" href=", JSON.encode_to_iodata!(style), " />"]
-        end
+        |> IO.chardata_to_string()
     }
   end
+
+  def global_imports do
+    [resource("app.css")]
+  end
+end
+
+defmodule SquiggleRelay.Bundle.InvalidChunk do
+  defexception message: "Chunk is not a bundle"
 end

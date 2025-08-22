@@ -8,17 +8,26 @@ global_args = ~w(--bundle --target=safari16 --format=esm)
 config :esbuild,
   version: "0.25.0",
   library: [
-    args: ~w(squiggle_realtime.ts --outdir=../../priv/static/lib/) ++ global_args,
+    args: ~w(./squiggle_realtime --outdir=../../priv/static/lib/) ++ global_args,
     cd: Path.expand("../assets/lib", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ],
   client: [
     args:
       [
+        "../assets/components/*/index.{t,j}s"
+        |> Path.expand(__DIR__)
+        |> Path.relative_to("../assets")
+        |> Path.wildcard()
+        |> Enum.map(&Path.dirname/1),
         ~w(
-        home/demo.ts home/home.css
-        --external:squiggle_realtime
+        app.css
+        home/home.css
+        games/page.css games/page.ts
+        --external:client_data
         --splitting
+        --alias:squiggle_realtime=./lib/squiggle_realtime
+        --loader:.html=copy
         --metafile=../lib/squiggle_relay/bundle.json
         --outdir=../priv/static/assets/
         ),

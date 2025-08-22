@@ -108,7 +108,7 @@ defmodule SquiggleRelay.Realtime do
     {:noreply, %{state | retry_delay: retry_delay}}
   end
 
-  def handle_info({:squiggle_event, event}, state) do
+  def handle_info({:squiggle_event, _event}, state) do
     {:noreply, state}
   end
 

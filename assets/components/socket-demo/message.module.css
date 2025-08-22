@@ -2,6 +2,7 @@
     font-size: 1em;
     display: flex;
     flex-direction: column;
+    view-transition-name: match-element;
     position: relative;
     border-radius: 0.5rem;
     overflow: auto;
