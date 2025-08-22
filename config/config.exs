@@ -23,7 +23,6 @@ config :esbuild,
         ~w(
         app.css
         home/home.css
-        games/page.css games/page.ts
         --external:client_data
         --splitting
         --alias:squiggle_realtime=./lib/squiggle_realtime
