@@ -13,7 +13,7 @@
             </article>
         </main>
 
-        <socket-demo></socket-demo>
+        <aside><socket-demo></socket-demo></aside>
         <%= ^body %>
     </body>
 </html>
