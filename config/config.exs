@@ -27,7 +27,7 @@ config :esbuild,
         --splitting
         --alias:squiggle_realtime=./lib/squiggle_realtime
         --loader:.html=copy
-        --metafile=../lib/squiggle_relay/bundle.json
+        --metafile=../priv/static/bundle.json
         --outdir=../priv/static/assets/
         ),
         global_args,

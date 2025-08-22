@@ -5,6 +5,8 @@ defmodule SquiggleRelay.Templates do
         Path.expand(__DIR__)
         |> Path.join("../../assets/templates/*.eex")
         |> Path.wildcard() do
+    @external_resource file
+
     filename = file |> Path.basename(".eex")
 
     {template, component_deps} =

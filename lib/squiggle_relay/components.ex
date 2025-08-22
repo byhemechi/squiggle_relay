@@ -12,6 +12,7 @@ defmodule SquiggleRelay.Components do
         |> Path.join("../../assets/components/*/template.html")
         |> Path.expand()
         |> Path.wildcard() do
+    @external_resource file
     filename = (dir = file |> Path.dirname()) |> Path.basename()
 
     bundle =

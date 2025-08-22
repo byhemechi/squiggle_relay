@@ -7,6 +7,13 @@
     }
 }
 
+@keyframes glideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
 @media screen and (min-width: 1280px) {
     body {
         grid-template-columns: minmax(0, auto) 32rem;
@@ -17,6 +24,14 @@
         position: sticky;
         top: 0;
     }
+}
+
+aside {
+    view-transition-name: sidebar;
+    background: light-dark(
+        oklch(0.97 0.02 var(--hue)),
+        oklch(0.12 0.02 var(--hue))
+    );
 }
 
 hr {

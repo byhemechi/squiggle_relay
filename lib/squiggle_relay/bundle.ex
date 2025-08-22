@@ -41,8 +41,11 @@ end
 defmodule SquiggleRelay.Bundle do
   defstruct scripts: [], styles: [], components: %{}, externals: %{}
 
-  @bundle_info Path.expand(__DIR__)
-               |> Path.join("./bundle.json")
+  @external_resource Path.expand(__DIR__)
+                     |> Path.join("../../priv/static/bundle.json")
+                     |> Path.expand()
+
+  @bundle_info @external_resource
                |> File.read!()
                |> JSON.decode!()
 

@@ -1,0 +1,15 @@
+export const activeChannels = new Set(<%= JSON.encode!(@channels) %>);
+
+const SquiggleChannel = {<%= for channel <- @channels do %>
+  get <%= channel
+          |> String.replace(~r/[^a-z]+/, "_")
+          |> Macro.camelize() %>() {
+    return import("/lib/squiggle_realtime.js")
+      .then(
+        ({ default: SquiggleRealtime }) =>
+          new SquiggleRealtime(<%= JSON.encode!(channel) %>)
+      )
+  },<% end %>
+}
+
+export default SquiggleChannel;

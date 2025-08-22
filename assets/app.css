@@ -3,6 +3,9 @@
 *::after {
     box-sizing: border-box;
 }
+::view-transition {
+    background-color: rgb(0 0 0 / 25%);
+}
 
 @view-transition {
     navigation: auto;
@@ -10,6 +13,17 @@
 
 ::view-transition-group(*) {
     animation-duration: 0.5s;
+}
+
+@keyframes glideIn {
+    from {
+        transform: translateX(100%);
+    }
+}
+@keyframes glideOut {
+    to {
+        transform: translateX(100%);
+    }
 }
 
 @property --hue {
